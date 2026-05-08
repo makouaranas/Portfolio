@@ -23,12 +23,12 @@ jobs:
       - name: Deploy backend code through proxy tunnel
         run: |
           rsync -avz --delete \
-            -e "ssh -o StrictHostKeyChecking=no -o \"ProxyCommand ssh -i ~/.ssh/deploy-key -W %h:%p ubuntu@${{ secrets.SERVER_HOST }}\"" \
+            -e "ssh -i ~/.ssh/deploy-key -o StrictHostKeyChecking=no -o \"ProxyCommand ssh -i ~/.ssh/deploy-key -W %h:%p ubuntu@${{ secrets.SERVER_HOST }}\"" \
             backend/ ubuntu@${{ secrets.BACKEND_HOST }}:/home/ubuntu/app/
 
       - name: Restart FastAPI service
         run: |
-          ssh -o StrictHostKeyChecking=no \
+          ssh -i ~/.ssh/deploy-key -o StrictHostKeyChecking=no \
               -o "ProxyCommand ssh -i ~/.ssh/deploy-key -W %h:%p ubuntu@${{ secrets.SERVER_HOST }}" \
               ubuntu@${{ secrets.BACKEND_HOST }} \
               "sudo systemctl restart fastapi"
