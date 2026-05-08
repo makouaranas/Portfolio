@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'backend/**'              # runs only when backend files change
+      - 'backend/**'
 
 jobs:
   deploy:
@@ -13,20 +13,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH agent and key
+      - name: Setup SSH key and known hosts
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/deploy-key
           chmod 600 ~/.ssh/deploy-key
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy backend code through jump host
+      - name: Deploy backend code through proxy tunnel
         run: |
           rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy-key -o StrictHostKeyChecking=no -J ubuntu@${{ secrets.SERVER_HOST }}" \
+            -e "ssh -o StrictHostKeyChecking=no -o \"ProxyCommand ssh -i ~/.ssh/deploy-key -W %h:%p ubuntu@${{ secrets.SERVER_HOST }}\"" \
             backend/ ubuntu@${{ secrets.BACKEND_HOST }}:~/app/
 
       - name: Restart FastAPI service
         run: |
-          ssh -i ~/.ssh/deploy-key -J ubuntu@${{ secrets.SERVER_HOST }} ubuntu@${{ secrets.BACKEND_HOST }} \
-            "sudo systemctl restart fastapi"
+          ssh -o StrictHostKeyChecking=no \
+              -o "ProxyCommand ssh -i ~/.ssh/deploy-key -W %h:%p ubuntu@${{ secrets.SERVER_HOST }}" \
+              ubuntu@${{ secrets.BACKEND_HOST }} \
+              "sudo systemctl restart fastapi"
