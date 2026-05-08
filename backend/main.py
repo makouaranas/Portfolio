@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.db import Base, engine
-from app.routers import public
+from app.routers import admin_auth, public
 
 settings = get_settings()
 
@@ -38,3 +38,4 @@ def health():
 
 
 app.include_router(public.router)
+app.include_router(admin_auth.router)

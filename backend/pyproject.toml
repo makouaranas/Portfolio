@@ -12,4 +12,8 @@ dependencies = [
     "pydantic-settings>=2.7",
     "email-validator>=2.2",
     "python-multipart>=0.0.20",
+    "bcrypt>=4.2",
+    "pyjwt>=2.10",
+    "pyotp>=2.9",
+    "qrcode[pil]>=8.0",
 ]
