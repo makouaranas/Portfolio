@@ -13,50 +13,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH key and config
+      - name: Deploy to backend via jump host
         run: |
           mkdir -p ~/.ssh
           
-          # Write the SSH key
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/deploy-key
           chmod 600 ~/.ssh/deploy-key
           
-          # Add host keys to prevent interactive prompts
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
-          ssh-keyscan -H ${{ secrets.BACKEND_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
           
-          # Create SSH config file
-          cat > ~/.ssh/config << 'EOF'
-          Host proxy
-            HostName SERVER_HOST_PLACEHOLDER
-            User ubuntu
+          cat > ~/.ssh/config << EOF
+          Host frontend
+            HostName ${{ secrets.SERVER_HOST }}
+            User ${{ secrets.SERVER_USER }}
             IdentityFile ~/.ssh/deploy-key
             StrictHostKeyChecking no
-            
+
           Host backend
-            HostName BACKEND_HOST_PLACEHOLDER
-            User ubuntu
+            HostName ${{ secrets.BACKEND_HOST }}
+            User ${{ secrets.SERVER_USER }}
             IdentityFile ~/.ssh/deploy-key
-            ProxyJump proxy
+            ProxyJump frontend
             StrictHostKeyChecking no
           EOF
           
-          # Replace placeholders with actual values
-          sed -i "s/SERVER_HOST_PLACEHOLDER/${{ secrets.SERVER_HOST }}/" ~/.ssh/config
-          sed -i "s/BACKEND_HOST_PLACEHOLDER/${{ secrets.BACKEND_HOST }}/" ~/.ssh/config
-          
           chmod 600 ~/.ssh/config
           
-          # Debug: Test connectivity
-          echo "Testing proxy connection..."
-          ssh proxy "echo 'Proxy OK'"
-          echo "Testing backend connection..."
-          ssh backend "echo 'Backend OK'"
-
-      - name: Deploy backend code
-        run: |
-          rsync -avz --delete backend/ backend:/home/ubuntu/app/
-
-      - name: Restart FastAPI service
-        run: |
-          ssh backend "sudo systemctl restart fastapi"
+          # Test connection
+          ssh backend "echo 'Backend connected!'"
+          
+          # Deploy code
+          rsync -avz -e "ssh" --delete backend/ backend:/home/ubuntu/app/
+          
+          # Install dependencies and restart
+          ssh backend "cd /home/ubuntu/app && source ~/.local/bin/env && uv sync"
+          ssh backend "sudo systemctl restart fastapi || echo 'Service not yet configured'"
