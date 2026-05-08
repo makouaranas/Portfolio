@@ -13,34 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to backend via jump host
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/deploy-key
           chmod 600 ~/.ssh/deploy-key
-          
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
-          
-          cat > ~/.ssh/config << EOF
-          Host frontend
-            HostName ${{ secrets.SERVER_HOST }}
-            User ${{ secrets.SERVER_USER }}
-            IdentityFile ~/.ssh/deploy-key
-            StrictHostKeyChecking no
 
-          Host backend
-            HostName ${{ secrets.BACKEND_HOST }}
-            User ${{ secrets.SERVER_USER }}
-            IdentityFile ~/.ssh/deploy-key
-            ProxyJump frontend
-            StrictHostKeyChecking no
-          EOF
-          
-          chmod 600 ~/.ssh/config
-          
-          ssh backend "echo 'Connected!'"
-          
-          rsync -avz -e ssh --delete --exclude '.venv' backend/ backend:/home/ubuntu/app/
-          
-          ssh backend "cd /home/ubuntu/app && source ~/.local/bin/env && uv sync && echo 'Dependencies installed!'"
+      - name: Upload backend code to frontend
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/deploy-key" --exclude '.venv' backend/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/backend-deploy/
+
+      - name: Deploy from frontend to backend
+        run: |
+          ssh -i ~/.ssh/deploy-key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'SCRIPT'
+          rsync -avz -e "ssh -i ~/.ssh/deploy-key" --delete --exclude '.venv' /tmp/backend-deploy/ ubuntu@10.0.1.247:/home/ubuntu/app/
+          ssh -i ~/.ssh/deploy-key ubuntu@10.0.1.247 "cd /home/ubuntu/app && source ~/.local/bin/env && uv sync"
+          rm -rf /tmp/backend-deploy
+          SCRIPT
