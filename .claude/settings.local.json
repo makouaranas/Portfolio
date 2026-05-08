@@ -15,7 +15,12 @@
       "Bash(awk NR<=20 *)",
       "Bash(netstat -ano -p tcp)",
       "Bash(awk '{print $5}')",
-      "Bash(taskkill *)"
+      "Bash(taskkill *)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(len\\(d\\),'skills'\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(len\\(d\\),'messages'\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d['name'],'|',d['title']\\)\")",
+      "Bash(python -c \"from PIL import Image; img=Image.new\\('RGB',\\(200,200\\),'orange'\\); img.save\\('C:/temp/test.png','PNG'\\)\")",
+      "Bash(python -m http.server 3001 --directory out)"
     ]
   }
 }
