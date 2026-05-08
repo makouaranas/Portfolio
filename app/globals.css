@@ -88,6 +88,15 @@ body {
   from { opacity: 0; transform: scale(0.95) translateY(10px); }
   to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
+@keyframes skillIconReveal {
+  from { opacity: 0; filter: blur(5px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+@keyframes skillIconPulseOut {
+  0%   { opacity: 0; transform: scale(0.9); }
+  18%  { opacity: 0.3; }
+  100% { opacity: 0; transform: scale(1.18); }
+}
 
 .animate-fade-up      { animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) both; }
 .animate-fade-in      { animation: fadeIn 0.8s ease both; }
@@ -140,13 +149,130 @@ body {
 .glow-yellow { box-shadow: 0 0 60px -10px rgba(234, 179, 8, 0.35); }
 .glow-sm     { box-shadow: 0 0 20px -5px rgba(234, 179, 8, 0.2); }
 
-/* ---- Skill bar ---- */
-.skill-bar {
-  --bar-w: 0%;
-  width: 0%;
-  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+/* ---- Skill icon cloud ---- */
+.skill-icon-button {
+  --reveal-delay: 0ms;
+  position: relative;
+  display: inline-flex;
+  width: 4.5rem;
+  height: 4.5rem;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  border: 1px solid color-mix(in oklab, var(--border-strong) 48%, transparent);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 20%, color-mix(in oklab, var(--fg) 8%, transparent), transparent 52%),
+    color-mix(in oklab, var(--card) 72%, transparent);
+  color: color-mix(in oklab, var(--accent) 88%, var(--fg));
+  opacity: 0;
+  transform: translateY(14px) scale(0.94);
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    color 0.35s ease,
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.skill-bar.skill-bar--visible { width: var(--bar-w); }
+
+.skill-icon-button--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  animation: skillIconReveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay) both;
+}
+
+.skill-icon-button::before,
+.skill-icon-button::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.skill-icon-button::before {
+  inset: 0;
+  z-index: -1;
+  border: 1px solid color-mix(in oklab, var(--accent) 36%, transparent);
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.skill-icon-button::after {
+  inset: 5px;
+  z-index: -2;
+  border: 1px solid color-mix(in oklab, var(--accent) 22%, transparent);
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.skill-icon-button:hover,
+.skill-icon-button:focus-visible {
+  border-color: color-mix(in oklab, var(--accent) 46%, transparent);
+  background:
+    radial-gradient(circle at 50% 20%, color-mix(in oklab, var(--accent) 18%, transparent), transparent 58%),
+    color-mix(in oklab, var(--card-2) 88%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--accent) 8%, transparent),
+    0 14px 34px -26px var(--accent);
+  color: var(--accent);
+  transform: translateY(-4px) scale(1.025);
+}
+
+.skill-icon-button:hover::before,
+.skill-icon-button:focus-visible::before {
+  animation: skillIconPulseOut 0.62s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.skill-icon-button:hover::after,
+.skill-icon-button:focus-visible::after {
+  animation: skillIconPulseOut 0.72s 60ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.skill-icon-button svg {
+  position: relative;
+  z-index: 1;
+  transition:
+    filter 0.35s ease,
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.skill-icon-button:hover svg,
+.skill-icon-button:focus-visible svg {
+  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--accent) 44%, transparent));
+  transform: translateY(-1px) scale(1.035);
+}
+
+@media (min-width: 640px) {
+  .skill-icon-button {
+    width: 5rem;
+    height: 5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-icon-button,
+  .skill-icon-button svg,
+  .skill-icon-button::before,
+  .skill-icon-button::after {
+    transition: none;
+  }
+
+  .skill-icon-button--visible {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .skill-icon-button:hover::before,
+  .skill-icon-button:focus-visible::before,
+  .skill-icon-button:hover::after,
+  .skill-icon-button:focus-visible::after {
+    animation: none;
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
 
 /* ---- Surfaces (CSS-var driven so light/dark just swap tokens) ---- */
 .surface       { background: var(--bg); color: var(--fg); }
