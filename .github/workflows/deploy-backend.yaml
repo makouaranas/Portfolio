@@ -28,6 +28,6 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy-key ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'SCRIPT'
           rsync -avz -e "ssh -i ~/.ssh/deploy-key" --delete --exclude '.venv' /tmp/backend-deploy/ ubuntu@10.0.1.247:/home/ubuntu/app/
-          ssh -i ~/.ssh/deploy-key ubuntu@10.0.1.247 "cd /home/ubuntu/app && source ~/.local/bin/env && uv sync"
+          ssh -i ~/.ssh/deploy-key ubuntu@10.0.1.247 "cd /home/ubuntu/app && export http_proxy=http://10.0.0.233:8888 && export https_proxy=http://10.0.0.233:8888 && source ~/.local/bin/env && uv sync"
           rm -rf /tmp/backend-deploy
           SCRIPT
