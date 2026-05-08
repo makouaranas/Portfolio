@@ -24,3 +24,18 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Simple utility additions for the portfolio */
+.text-foreground {
+  color: var(--foreground);
+}
+
+.bg-foreground {
+  background: var(--foreground);
+}
+
+.container-center {
+  max-width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+}
