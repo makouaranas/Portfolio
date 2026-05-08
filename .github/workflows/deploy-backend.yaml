@@ -13,22 +13,50 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH key and known hosts
+      - name: Setup SSH key and config
         run: |
           mkdir -p ~/.ssh
+          
+          # Write the SSH key
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/deploy-key
           chmod 600 ~/.ssh/deploy-key
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          
+          # Add host keys to prevent interactive prompts
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -H ${{ secrets.BACKEND_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          
+          # Create SSH config file
+          cat > ~/.ssh/config << 'EOF'
+          Host proxy
+            HostName SERVER_HOST_PLACEHOLDER
+            User ubuntu
+            IdentityFile ~/.ssh/deploy-key
+            StrictHostKeyChecking no
+            
+          Host backend
+            HostName BACKEND_HOST_PLACEHOLDER
+            User ubuntu
+            IdentityFile ~/.ssh/deploy-key
+            ProxyJump proxy
+            StrictHostKeyChecking no
+          EOF
+          
+          # Replace placeholders with actual values
+          sed -i "s/SERVER_HOST_PLACEHOLDER/${{ secrets.SERVER_HOST }}/" ~/.ssh/config
+          sed -i "s/BACKEND_HOST_PLACEHOLDER/${{ secrets.BACKEND_HOST }}/" ~/.ssh/config
+          
+          chmod 600 ~/.ssh/config
+          
+          # Debug: Test connectivity
+          echo "Testing proxy connection..."
+          ssh proxy "echo 'Proxy OK'"
+          echo "Testing backend connection..."
+          ssh backend "echo 'Backend OK'"
 
-      - name: Deploy backend code through proxy tunnel
+      - name: Deploy backend code
         run: |
-          rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy-key -o StrictHostKeyChecking=no -o \"ProxyCommand ssh -i ~/.ssh/deploy-key -W %h:%p ubuntu@${{ secrets.SERVER_HOST }}\"" \
-            backend/ ubuntu@${{ secrets.BACKEND_HOST }}:/home/ubuntu/app/
+          rsync -avz --delete backend/ backend:/home/ubuntu/app/
 
       - name: Restart FastAPI service
         run: |
-          ssh -i ~/.ssh/deploy-key -o StrictHostKeyChecking=no \
-              -o "ProxyCommand ssh -i ~/.ssh/deploy-key -W %h:%p ubuntu@${{ secrets.SERVER_HOST }}" \
-              ubuntu@${{ secrets.BACKEND_HOST }} \
-              "sudo systemctl restart fastapi"
+          ssh backend "sudo systemctl restart fastapi"
