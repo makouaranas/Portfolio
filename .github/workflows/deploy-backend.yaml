@@ -39,12 +39,8 @@ jobs:
           
           chmod 600 ~/.ssh/config
           
-          # Test connection
-          ssh backend "echo 'Backend connected!'"
+          ssh backend "echo 'Connected!'"
           
-          # Deploy code
-          rsync -avz -e "ssh" --delete backend/ backend:/home/ubuntu/app/
+          rsync -avz -e ssh --delete --exclude '.venv' backend/ backend:/home/ubuntu/app/
           
-          # Install dependencies and restart
-          ssh backend "cd /home/ubuntu/app && source ~/.local/bin/env && uv sync"
-          ssh backend "sudo systemctl restart fastapi || echo 'Service not yet configured'"
+          ssh backend "cd /home/ubuntu/app && source ~/.local/bin/env && uv sync && echo 'Dependencies installed!'"
