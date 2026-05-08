@@ -100,7 +100,7 @@ function Navbar() {
         {/* Logo */}
         <a href="#" className="text-lg font-bold tracking-tight">
           <span className="text-yellow-400">{"<"}</span>
-          YourName
+          MAKOUAR Anas
           <span className="text-yellow-400">{"/>"}</span>
         </a>
 
@@ -610,7 +610,7 @@ function Footer() {
     <footer className="border-t border-white/5 py-8">
       <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-xs text-neutral-600">
-          © {new Date().getFullYear()} YourName. Built with Next.js & Tailwind.
+          © {new Date().getFullYear()} MAKOUAR Anas. Built with Next.js & Tailwind.
         </p>
         <p className="text-xs text-neutral-700">
           Designed & developed with 💛
