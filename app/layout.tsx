@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio — Your Name",
+  title: "Portfolio — MAKOUAR Anas",
   description: "Developer, Designer, Creator",
 };
 

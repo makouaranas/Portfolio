@@ -190,7 +190,7 @@ function Hero() {
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-medium tracking-tighter leading-[1.05] animate-fade-up delay-100">
             Hi, I&apos;m{" "}
-            <span className="text-yellow-400">Your Name</span>
+            <span className="text-yellow-400">MAKOUAR Anas</span>
             <br />
             <span className="text-neutral-500">I build things for the web.</span>
           </h1>
@@ -232,7 +232,7 @@ function Hero() {
               {/* Replace this src with your actual photo */}
               <img
                 src="https://picsum.photos/seed/your-face/600/600.jpg"
-                alt="Your Name"
+                alt="MAKOUAR Anas"
                 className="w-full h-full object-cover"
               />
               {/* Subtle overlay */}
@@ -328,7 +328,7 @@ function About() {
 
             <div className="mt-8 grid grid-cols-2 gap-4">
               {[
-                { label: "Name", value: "Your Name" },
+                { label: "Name", value: "MAKOUAR Anas" },
                 { label: "Email", value: "hello@you.dev" },
                 { label: "Location", value: "Your City" },
                 { label: "Status", value: "Open to work" },
