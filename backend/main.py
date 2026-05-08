@@ -4,7 +4,7 @@ app = FastAPI()
 
 @app.get("/")
 def root():
-    return {"message": "33dddBackend is running! CI/CD works!"}
+    return {"message": "Backend CI/CD is working!"}
 
 @app.get("/api/health")
 def health():
