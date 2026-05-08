@@ -12,7 +12,7 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "https://makouaranas.site",
-        "https://admin.makouaranas.site",
+        "https://www.makouaranas.site",
     ]
     contact_inbox_email: str = "makouaranass@gmail.com"
 
