@@ -637,7 +637,7 @@ export default function Home() {
     );
 
     document.querySelectorAll(".stat-item, .about-photo, .about-text").forEach((el) => {
-      el.style.opacity = "0";
+      (el as HTMLElement).style.opacity = "0";
       observer.observe(el);
     });
 
