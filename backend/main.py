@@ -6,6 +6,6 @@ app = FastAPI()
 def root():
     return {"message": "Backend CI/CD is working!"}
 
-@app.get("/api/health")
+@app.get("/health")
 def health():
     return {"status": "okay"}
