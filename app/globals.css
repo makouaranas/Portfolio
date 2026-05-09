@@ -44,6 +44,26 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Tailwind v4 dropped the user-agent pointer cursor on buttons / interactive
+   elements. Restore it site-wide so visitors get the visual hint. */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+[role="switch"],
+[role="tab"],
+[role="menuitem"],
+[role="link"],
+a[href],
+label[for],
+select:not(:disabled),
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
@@ -129,6 +149,26 @@ body {
   animation: typewriter-blink 1s steps(2) infinite;
 }
 
+/* ---- Typewriter: ghost reserves the longest phrase's footprint so the
+   layout below never jumps while phrases cycle. ---- */
+.typewriter {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  max-width: 100%;
+}
+.typewriter-ghost {
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+  white-space: normal;
+}
+.typewriter-text {
+  position: absolute;
+  inset: 0;
+  white-space: normal;
+}
+
 /* ---- Scrollbar ---- */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
@@ -136,6 +176,10 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
 
 /* ---- Grid BG ---- */
+@keyframes gridDrift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
 .grid-bg {
   background-image:
     linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
@@ -143,6 +187,38 @@ body {
   background-size: 40px 40px;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  animation: gridDrift 28s linear infinite;
+}
+
+/* ---- Aurora orbs — slow elliptical drift to make the bg feel alive ---- */
+@keyframes orbDrift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(80px, -50px) scale(1.08); }
+  66%      { transform: translate(-50px, 60px) scale(0.94); }
+}
+@keyframes orbDrift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-110px, 90px) scale(1.12); }
+}
+@keyframes orbDrift3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-50%, -50%) scale(1.1); }
+}
+@keyframes orbPulse {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 0.85; }
+}
+.animate-orb-1 { animation: orbDrift1 22s ease-in-out infinite, orbPulse 9s ease-in-out infinite; }
+.animate-orb-2 { animation: orbDrift2 28s ease-in-out infinite, orbPulse 11s ease-in-out infinite 1s; }
+.animate-orb-3 { animation: orbDrift3 14s ease-in-out infinite, orbPulse 7s ease-in-out infinite 0.5s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-bg,
+  .animate-orb-1,
+  .animate-orb-2,
+  .animate-orb-3 {
+    animation: none;
+  }
 }
 
 /* ---- Glow ---- */
@@ -232,14 +308,66 @@ body {
   position: relative;
   z-index: 1;
   transition:
-    filter 0.35s ease,
+    filter 0.5s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Paths are fully drawn at rest */
+.skill-icon-button svg path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
 }
 
 .skill-icon-button:hover svg,
 .skill-icon-button:focus-visible svg {
-  filter: drop-shadow(0 0 8px color-mix(in oklab, var(--accent) 44%, transparent));
-  transform: translateY(-1px) scale(1.035);
+  filter: drop-shadow(0 0 12px color-mix(in oklab, var(--accent) 70%, transparent));
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* ── Premium stroke-draw on hover ──────────────────────────────────────
+   4% = near-instant erase (~60 ms at 1.5 s), rest = slow hand-drawn redraw.
+   Each icon gets its own duration so the cloud feels alive, not uniform.
+   Multi-path icons draw their paths sequentially.
+──────────────────────────────────────────────────────────────────────── */
+.skill-icon-button:hover svg path,
+.skill-icon-button:focus-visible svg path {
+  animation: strokeDraw 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+
+/* Sequential draw for second path in dual-path icons */
+.skill-icon-button:hover svg path:nth-child(2),
+.skill-icon-button:focus-visible svg path:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+/* Third path (e.g. microchip) draws last */
+.skill-icon-button:hover svg path:nth-child(3),
+.skill-icon-button:focus-visible svg path:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+/* Per-icon duration variety — range 2.2 s–3.0 s so complex icons (Linux, GitHub,
+   Docker) get enough time to feel premium, not rushed.
+   Linux = icon 15 → nth-child(15) → 3.0 s  |  GitHub = icon 13 → 4n+1 → 2.2 s  */
+.skill-icon-button:nth-child(4n+1):hover svg path { animation-duration: 2.2s; }
+.skill-icon-button:nth-child(4n+2):hover svg path { animation-duration: 2.8s; }
+.skill-icon-button:nth-child(4n+3):hover svg path { animation-duration: 2.5s; }
+.skill-icon-button:nth-child(15):hover svg path      { animation-duration: 3.0s; }
+.skill-icon-button:nth-child(4n):hover svg path      { animation-duration: 2.6s; }
+
+/* Easing variety — spring feel vs smooth deliberate */
+.skill-icon-button:nth-child(odd):hover svg path {
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+.skill-icon-button:nth-child(even):hover svg path {
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes strokeDraw {
+  0%   { stroke-dashoffset: 0; }  /* visible at hover start          */
+  4%   { stroke-dashoffset: 1; }  /* near-instant erase (~90 ms)     */
+  100% { stroke-dashoffset: 0; }  /* slow premium redraw             */
 }
 
 @media (min-width: 640px) {
@@ -272,6 +400,21 @@ body {
     opacity: 0;
     transform: scale(0.92);
   }
+
+  .skill-icon-button:hover svg,
+  .skill-icon-button:focus-visible svg {
+    transform: scale(1.05) translateY(-2px);
+  }
+
+  .skill-icon-button:hover svg path,
+  .skill-icon-button:focus-visible svg path,
+  .skill-icon-button:nth-child(4n+1):hover svg path,
+  .skill-icon-button:nth-child(4n+2):hover svg path,
+  .skill-icon-button:nth-child(4n+3):hover svg path,
+  .skill-icon-button:nth-child(4n):hover svg path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
 }
 
 /* ---- Surfaces (CSS-var driven so light/dark just swap tokens) ---- */
@@ -279,5 +422,67 @@ body {
 .surface-soft  { background: var(--bg-soft); }
 .surface-card  { background: var(--card); border: 1px solid var(--border); }
 
-/* Selection */
-::selection { background: rgba(234, 179, 8, 0.3); color: var(--fg); }
+/* ---- Theme slider ---- */
+.theme-slider {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+  cursor: pointer;
+  box-shadow: inset 0 1px 2px color-mix(in oklab, black 18%, transparent);
+}
+.theme-slider:hover {
+  border-color: color-mix(in oklab, var(--accent) 45%, transparent);
+}
+.theme-slider:focus-visible {
+  outline: none;
+  border-color: color-mix(in oklab, var(--accent) 60%, transparent);
+  box-shadow:
+    inset 0 1px 2px color-mix(in oklab, black 18%, transparent),
+    0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
+}
+.theme-slider-thumb {
+  background: var(--accent);
+  color: #0a0a0a;
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--accent) 30%, transparent),
+    0 4px 10px -2px color-mix(in oklab, var(--accent) 50%, transparent),
+    0 1px 2px rgba(0, 0, 0, 0.25);
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-slider,
+  .theme-slider-thumb,
+  .theme-slider-thumb svg,
+  .theme-slider span {
+    transition: none;
+  }
+}
+
+/* ---- Contact icons — bare glyphs, color-only hover ---- */
+.contact-icon-link {
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+.contact-icon-link:hover,
+.contact-icon-link:focus-visible {
+  color: var(--accent);
+  filter: drop-shadow(0 0 14px color-mix(in oklab, var(--accent) 55%, transparent));
+  transform: translateY(-2px);
+}
+.contact-icon-link:focus-visible {
+  outline: 1px dashed color-mix(in oklab, var(--accent) 60%, transparent);
+  outline-offset: 6px;
+  border-radius: 999px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-icon-link,
+  .contact-icon-link svg {
+    transition: none;
+  }
+  .contact-icon-link:hover,
+  .contact-icon-link:focus-visible {
+    transform: none;
+    filter: none;
+  }
+}

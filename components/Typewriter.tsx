@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface TypewriterProps {
   words: string[];
@@ -20,6 +20,13 @@ export default function Typewriter({
   const [index, setIndex] = useState(0);
   const [text, setText] = useState("");
   const [phase, setPhase] = useState<"typing" | "pausing" | "deleting">("typing");
+
+  // Reserve the visual footprint of the longest phrase so the layout below
+  // never jumps as we type / delete shorter phrases.
+  const longest = useMemo(
+    () => words.reduce((acc, w) => (w.length > acc.length ? w : acc), ""),
+    [words],
+  );
 
   useEffect(() => {
     if (words.length === 0) return;
@@ -42,5 +49,14 @@ export default function Typewriter({
     return () => clearTimeout(timer);
   }, [text, phase, index, words, typingSpeed, deletingSpeed, pauseMs]);
 
-  return <span className={`cursor-blink ${className}`}>{text}</span>;
+  return (
+    <span className={`typewriter ${className}`}>
+      <span aria-hidden="true" className="typewriter-ghost">
+        {longest}
+      </span>
+      <span className="cursor-blink typewriter-text" aria-live="polite">
+        {text}
+      </span>
+    </span>
+  );
 }

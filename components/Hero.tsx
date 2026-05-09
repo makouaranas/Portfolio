@@ -17,7 +17,15 @@ export default function Hero({ about, loading }: HeroProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 grid-bg" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-yellow-400/5 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* Aurora orbs — drift slowly behind everything */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[18%] left-[12%] w-[420px] h-[420px] bg-yellow-400/8 rounded-full blur-[110px] animate-orb-1" />
+        <div className="absolute bottom-[10%] right-[8%] w-[520px] h-[520px] bg-yellow-400/6 rounded-full blur-[130px] animate-orb-2" />
+        <div className="absolute top-1/2 left-1/2 w-[360px] h-[360px] bg-yellow-400/7 rounded-full blur-[90px] animate-orb-3" />
+      </div>
+
+      {/* Spinning rings around the photo */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px] border rounded-full animate-spin-slow pointer-events-none"
            style={{ borderColor: "var(--border)" }} />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[550px] md:h-[550px] border rounded-full animate-spin-slow pointer-events-none"

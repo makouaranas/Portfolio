@@ -5,7 +5,6 @@ import {
   faGithub,
   faLinux,
   faNodeJs,
-  faOpenai,
   faPostgresql,
   faPython,
   faReact,
@@ -19,7 +18,6 @@ import {
   faCode,
   faCodeBranch,
   faDatabase,
-  faDiagramProject,
   faMicrochip,
   faRobot,
   faServer,
@@ -44,8 +42,8 @@ function iconForSkill(skill: Pick<Skill, "name" | "category">): IconDefinition {
   if (name.includes("python") || name.includes("fastapi")) return faPython;
   if (name.includes("node")) return faNodeJs;
   if (name.includes("postgres")) return faPostgresql;
-  if (name.includes("rest") || name.includes("graphql")) return faDiagramProject;
-  if (name.includes("llm") || name.includes("ai")) return faOpenai;
+  if (name.includes("rest") || name.includes("graphql")) return faServer;
+  if (name.includes("llm") || name.includes("ai")) return faBrain;
   if (name.includes("rpa") || name.includes("automation")) return faRobot;
   if (name.includes("electrical")) return faBolt;
   if (name.includes("embedded") || name.includes("iot")) return faMicrochip;
@@ -55,7 +53,7 @@ function iconForSkill(skill: Pick<Skill, "name" | "category">): IconDefinition {
   if (name.includes("ci") || name.includes("cd")) return faCodeBranch;
 
   if (category.includes("frontend")) return faReact;
-  if (category.includes("backend")) return faServer;
+  if (category.includes("backend")) return faDatabase;
   if (category.includes("ai")) return faBrain;
   if (category.includes("electrical")) return faBolt;
   if (category.includes("tools")) return faCodeBranch;
@@ -83,7 +81,8 @@ export default function SkillIcon({ skill, className = "h-7 w-7" }: SkillIconPro
           stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth={20}
+          strokeWidth={12}
+          pathLength="1"
         />
       ))}
     </svg>
