@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import type { Project } from "../lib/types";
 import ProjectModal from "./ProjectModal";
+import Reveal from "./Reveal";
 
 interface ProjectsProps {
   projects: Project[];
@@ -27,7 +28,7 @@ export default function Projects({ projects, loading }: ProjectsProps) {
   return (
     <section id="projects" ref={sectionRef} className="relative py-28">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto">
+        <Reveal className="text-center max-w-2xl mx-auto">
           <span className="text-xs font-medium tracking-[0.2em] uppercase text-yellow-400">Projects</span>
           <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl font-medium tracking-tighter">
             Selected <span style={{ color: "var(--muted)" }}>works</span>
@@ -35,7 +36,7 @@ export default function Projects({ projects, loading }: ProjectsProps) {
           <p className="mt-4" style={{ color: "var(--muted)" }}>
             Click a card for the full story.
           </p>
-        </div>
+        </Reveal>
 
         <div className="mt-16 grid md:grid-cols-2 gap-8">
           {loading

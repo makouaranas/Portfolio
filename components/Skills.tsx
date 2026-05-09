@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import type { Skill } from "../lib/types";
+import Reveal from "./Reveal";
 import SkillIcon from "./SkillIcon";
 import SkillModal from "./SkillModal";
 
@@ -30,12 +31,12 @@ export default function Skills({ skills, loading }: SkillsProps) {
       <div className="absolute inset-0 grid-bg" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto">
+        <Reveal className="text-center max-w-2xl mx-auto">
           <span className="text-xs font-medium tracking-[0.2em] uppercase text-yellow-400">Skills</span>
           <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl font-medium tracking-tighter">
             Technical <span style={{ color: "var(--muted)" }}>toolkit</span>
           </h2>
-        </div>
+        </Reveal>
 
         {loading ? (
           <div className="mx-auto mt-16 flex max-w-4xl flex-wrap items-center justify-center gap-4 sm:gap-5">

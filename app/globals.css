@@ -422,6 +422,30 @@ body {
 .surface-soft  { background: var(--bg-soft); }
 .surface-card  { background: var(--card); border: 1px solid var(--border); }
 
+/* ---- Scroll progress rail (right side) ---- */
+@keyframes scrollDotPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent),
+      0 0 8px var(--accent),
+      0 0 14px color-mix(in oklab, var(--accent) 40%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--accent) 60%, transparent),
+      0 0 14px var(--accent),
+      0 0 26px color-mix(in oklab, var(--accent) 70%, transparent);
+  }
+}
+.scroll-progress-dot {
+  animation: scrollDotPulse 2.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress-dot {
+    animation: none;
+  }
+}
+
 /* ---- Theme slider ---- */
 .theme-slider {
   background: var(--bg-soft);

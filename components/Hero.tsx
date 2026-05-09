@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import type { About } from "../lib/types";
 import Typewriter from "./Typewriter";
 
@@ -14,24 +16,67 @@ export default function Hero({ about, loading }: HeroProps) {
     about?.hero_description ??
     "I build performant, beautifully-crafted web apps and bring an electrical engineering mindset to every system I design.";
 
+  // Scroll-linked parallax: writes --p (0..1 over first viewport) to the
+  // section element on every animation frame, no React re-renders.
+  const sectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    let raf = 0;
+    const update = () => {
+      const vh = window.innerHeight || 1;
+      const p = Math.max(0, Math.min(1, window.scrollY / vh));
+      el.style.setProperty("--p", String(p));
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="hero-section relative min-h-screen flex items-center justify-center overflow-hidden"
+    >
       <div className="absolute inset-0 grid-bg" />
 
-      {/* Aurora orbs — drift slowly behind everything */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Aurora orbs — drift slowly + parallax up as page scrolls */}
+      <div
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        style={{ transform: "translate3d(0, calc(var(--p, 0) * -80px), 0)" }}
+      >
         <div className="absolute top-[18%] left-[12%] w-[420px] h-[420px] bg-yellow-400/8 rounded-full blur-[110px] animate-orb-1" />
         <div className="absolute bottom-[10%] right-[8%] w-[520px] h-[520px] bg-yellow-400/6 rounded-full blur-[130px] animate-orb-2" />
         <div className="absolute top-1/2 left-1/2 w-[360px] h-[360px] bg-yellow-400/7 rounded-full blur-[90px] animate-orb-3" />
       </div>
 
-      {/* Spinning rings around the photo */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px] border rounded-full animate-spin-slow pointer-events-none"
-           style={{ borderColor: "var(--border)" }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[550px] md:h-[550px] border rounded-full animate-spin-slow pointer-events-none"
-           style={{ borderColor: "var(--border)", animationDirection: "reverse", animationDuration: "30s" }} />
+      {/* Spinning rings — slight inverse parallax for depth */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[700px] md:h-[700px] border rounded-full animate-spin-slow pointer-events-none"
+        style={{ borderColor: "var(--border)" }}
+      />
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[550px] md:h-[550px] border rounded-full animate-spin-slow pointer-events-none"
+        style={{ borderColor: "var(--border)", animationDirection: "reverse", animationDuration: "30s" }}
+      />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-16 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+      {/* Foreground content — fades and slides up as user scrolls past */}
+      <div
+        className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-16 flex flex-col lg:flex-row items-center gap-12 lg:gap-20"
+        style={{
+          transform: "translate3d(0, calc(var(--p, 0) * -40px), 0)",
+          opacity: "calc(1 - var(--p, 0) * 0.85)",
+        }}
+      >
         <div className="flex-1 text-center lg:text-left">
           <div className="animate-fade-up">
             <span className="inline-flex items-center gap-2 text-xs font-medium tracking-[0.2em] uppercase text-yellow-400 mb-6">
@@ -84,7 +129,11 @@ export default function Hero({ about, loading }: HeroProps) {
           </div>
         </div>
 
-        <div className="flex-shrink-0 animate-scale-in delay-300">
+        {/* Photo column — gentler parallax than text */}
+        <div
+          className="flex-shrink-0 animate-scale-in delay-300"
+          style={{ transform: "translate3d(0, calc(var(--p, 0) * 30px), 0)" }}
+        >
           <div className="relative">
             <div className="absolute inset-0 rounded-full border border-yellow-400/20 animate-pulse-ring" />
             <div className="absolute inset-0 rounded-full border border-yellow-400/10 animate-pulse-ring" style={{ animationDelay: "0.8s" }} />
@@ -119,7 +168,11 @@ export default function Hero({ about, loading }: HeroProps) {
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-fade-in delay-1000">
+      {/* Scroll cue — fades out as user starts scrolling */}
+      <div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-fade-in delay-1000"
+        style={{ opacity: "calc(1 - var(--p, 0) * 1.4)" }}
+      >
         <div className="flex flex-col items-center gap-2">
           <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "var(--muted-2)" }}>Scroll</span>
           <div
