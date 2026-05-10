@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, themeBootScript } from "../components/ThemeProvider";
+import LoadingWrapper from "../components/LoadingWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-[family-name:var(--font-geist-sans)]`}
         style={{ background: "var(--bg)", color: "var(--fg)" }}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <LoadingWrapper>{children}</LoadingWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

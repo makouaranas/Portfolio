@@ -130,6 +130,7 @@ export interface AboutContent {
   years_experience: number;
   seo_title: string | null;
   seo_description: string | null;
+  hero_phrases: string[] | null;
 }
 
 export interface UploadResult {

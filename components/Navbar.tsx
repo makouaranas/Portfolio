@@ -3,62 +3,102 @@
 import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 
-const NAV_LINKS = ["About", "Skills", "Projects", "Contact"];
+const NAV_LINKS = ["About", "Skills", "Projects"];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("");
 
+  /* Scroll → frosted bar */
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     onScroll();
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  /* Active-section tracking — scroll spy */
+  useEffect(() => {
+    const ids = NAV_LINKS.map((l) => l.toLowerCase());
+
+    const update = () => {
+      const trigger = window.scrollY + window.innerHeight * 0.35;
+      let current = "";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= trigger) current = id;
+      }
+      setActiveSection(current);
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
   }, []);
 
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "backdrop-blur-xl border-b"
-          : "border-b border-transparent"
+        scrolled ? "backdrop-blur-xl border-b" : "border-b border-transparent"
       }`}
       style={
         scrolled
-          ? { background: "color-mix(in oklab, var(--bg) 80%, transparent)", borderColor: "var(--border)" }
+          ? {
+              background: "color-mix(in oklab, var(--bg) 80%, transparent)",
+              borderColor: "var(--border)",
+            }
           : undefined
       }
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+
+        {/* Logo */}
         <a
           href="#"
-          className="text-lg font-bold tracking-tight transition-transform duration-300 hover:scale-[1.02]"
+          className="text-lg font-bold tracking-tight transition-all duration-300 hover:scale-[1.03]"
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.filter =
+              "drop-shadow(0 0 8px color-mix(in oklab, var(--accent) 55%, transparent))";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.filter = "";
+          }}
         >
           <span className="text-yellow-400">{"<"}</span>
           MAKOUAR Anas
           <span className="text-yellow-400">{"/>"}</span>
         </a>
 
+        {/* Desktop links */}
         <div className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map((l) => (
-            <a
-              key={l}
-              href={`#${l.toLowerCase()}`}
-              className="text-sm transition-colors duration-300 hover:text-yellow-400"
-              style={{ color: "var(--muted)" }}
-            >
-              {l}
-            </a>
-          ))}
+          {NAV_LINKS.map((l) => {
+            const id = l.toLowerCase();
+            const isActive = activeSection === id;
+            return (
+              <a
+                key={l}
+                href={`#${id}`}
+                className={`nav-link text-sm pb-0.5${isActive ? " nav-link--active" : ""}`}
+                style={{ color: isActive ? "var(--accent)" : "var(--muted)" }}
+              >
+                {l}
+              </a>
+            );
+          })}
+
+          {/* Contact Me CTA */}
           <a
             href="#contact"
-            className="text-sm font-semibold px-5 py-2 rounded-full bg-yellow-400 text-black hover:bg-yellow-300 transition-all duration-300 hover:scale-105 glow-yellow"
+            className="nav-cta text-sm font-semibold px-5 py-2 rounded-full bg-yellow-400 text-black transition-all duration-300 hover:bg-yellow-300 hover:scale-105 glow-yellow"
           >
-            Hire Me
+            Contact Me
           </a>
+
           <ThemeToggle />
         </div>
 
+        {/* Mobile hamburger */}
         <div className="md:hidden flex items-center gap-3">
           <ThemeToggle />
           <button
@@ -83,6 +123,7 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile drawer */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-500 ${
           mobileOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
@@ -95,23 +136,27 @@ export default function Navbar() {
             borderColor: "var(--border)",
           }}
         >
-          {NAV_LINKS.map((l) => (
-            <a
-              key={l}
-              href={`#${l.toLowerCase()}`}
-              onClick={() => setMobileOpen(false)}
-              className="transition-colors py-1 hover:text-yellow-400"
-              style={{ color: "var(--muted)" }}
-            >
-              {l}
-            </a>
-          ))}
+          {NAV_LINKS.map((l) => {
+            const id = l.toLowerCase();
+            const isActive = activeSection === id;
+            return (
+              <a
+                key={l}
+                href={`#${id}`}
+                onClick={() => setMobileOpen(false)}
+                className={`nav-link py-1 text-sm${isActive ? " nav-link--active" : ""}`}
+                style={{ color: isActive ? "var(--accent)" : "var(--muted)" }}
+              >
+                {l}
+              </a>
+            );
+          })}
           <a
             href="#contact"
             onClick={() => setMobileOpen(false)}
-            className="text-sm font-semibold px-5 py-2.5 rounded-full bg-yellow-400 text-black text-center w-fit"
+            className="nav-cta text-sm font-semibold px-5 py-2.5 rounded-full bg-yellow-400 text-black text-center w-fit glow-yellow"
           >
-            Hire Me
+            Contact Me
           </a>
         </div>
       </div>

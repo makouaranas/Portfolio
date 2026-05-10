@@ -71,6 +71,7 @@ class AboutOut(BaseModel):
     years_experience: int
     seo_title: str | None
     seo_description: str | None
+    hero_phrases: list[str] | None = None
 
 
 class ContactMessageIn(BaseModel):
@@ -192,6 +193,8 @@ class AboutIn(BaseModel):
     years_experience: int = Field(ge=0, default=0)
     seo_title: str | None = None
     seo_description: str | None = None
+    # Each phrase max 40 chars, list max 10 items
+    hero_phrases: list[str] | None = Field(None, max_length=10)
 
 
 class StatsOut(BaseModel):

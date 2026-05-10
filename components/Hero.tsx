@@ -71,7 +71,7 @@ export default function Hero({ about, loading }: HeroProps) {
 
       {/* Foreground content — fades and slides up as user scrolls past */}
       <div
-        className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-16 flex flex-col lg:flex-row items-center gap-12 lg:gap-20"
+        className="relative z-10 max-w-6xl mx-auto px-6 pt-16 lg:pt-24 pb-16 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20"
         style={{
           transform: "translate3d(0, calc(var(--p, 0) * -40px), 0)",
           opacity: "calc(1 - var(--p, 0) * 0.85)",
@@ -91,12 +91,16 @@ export default function Hero({ about, loading }: HeroProps) {
             <br />
             <span style={{ color: "var(--muted)" }}>
               <Typewriter
-                words={[
-                  "I build things for the web.",
-                  "I design clean, fast UIs.",
-                  "I ship real systems, end to end.",
-                  "Electrical Engineer × Full Stack.",
-                ]}
+                words={
+                  about?.hero_phrases?.length
+                    ? about.hero_phrases
+                    : [
+                        "I build things for the web.",
+                        "I design clean, fast UIs.",
+                        "I ship real systems, end to end.",
+                        "Electrical Engineer × Full Stack.",
+                      ]
+                }
               />
             </span>
           </h1>

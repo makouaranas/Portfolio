@@ -8,6 +8,9 @@ import { adminApi, type AboutContent } from "../../../lib/adminApi";
 const inputCls =
   "w-full px-4 py-3 rounded-xl border bg-transparent text-sm transition-colors focus:outline-none focus:border-yellow-400/60";
 
+const PHRASE_MAX = 40;
+const PHRASES_MAX_COUNT = 10;
+
 const empty: AboutContent = {
   name: "",
   title: "",
@@ -19,6 +22,7 @@ const empty: AboutContent = {
   years_experience: 0,
   seo_title: null,
   seo_description: null,
+  hero_phrases: null,
 };
 
 export default function AdminAboutPage() {
@@ -26,6 +30,17 @@ export default function AdminAboutPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<{ kind: "ok" | "err"; message: string } | null>(null);
+  const [newPhrase, setNewPhrase] = useState("");
+
+  const phrases = values.hero_phrases ?? [];
+  const addPhrase = () => {
+    const trimmed = newPhrase.trim();
+    if (!trimmed || trimmed.length > PHRASE_MAX || phrases.length >= PHRASES_MAX_COUNT) return;
+    setValues((v) => ({ ...v, hero_phrases: [...phrases, trimmed] }));
+    setNewPhrase("");
+  };
+  const removePhrase = (i: number) =>
+    setValues((v) => ({ ...v, hero_phrases: phrases.filter((_, idx) => idx !== i) }));
 
   useEffect(() => {
     let cancelled = false;
@@ -108,6 +123,134 @@ export default function AdminAboutPage() {
               style={fieldStyle()}
             />
           </Field>
+
+          {/* ── Typewriter phrases ─────────────────────────────────────── */}
+          <div
+            className="rounded-2xl border p-5 space-y-4"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-yellow-400">
+                  Typewriter phrases
+                </p>
+                <p className="mt-0.5 text-xs" style={{ color: "var(--muted)" }}>
+                  These cycle in the hero heading. Max&nbsp;{PHRASE_MAX}&nbsp;characters each,
+                  up to&nbsp;{PHRASES_MAX_COUNT}&nbsp;phrases.
+                </p>
+              </div>
+              <span
+                className="shrink-0 text-xs font-mono px-2 py-0.5 rounded-full border"
+                style={{
+                  borderColor: "var(--border)",
+                  color: phrases.length >= PHRASES_MAX_COUNT ? "#f87171" : "var(--muted-2)",
+                }}
+              >
+                {phrases.length}/{PHRASES_MAX_COUNT}
+              </span>
+            </div>
+
+            {/* Current phrases list */}
+            {phrases.length > 0 ? (
+              <ul className="space-y-2">
+                {phrases.map((p, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl border"
+                    style={{ borderColor: "var(--border)", background: "var(--card)" }}
+                  >
+                    <span className="text-sm flex-1 font-mono truncate">{p}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span
+                        className="text-xs font-mono"
+                        style={{
+                          color: p.length > PHRASE_MAX * 0.85 ? "#fbbf24" : "var(--muted-2)",
+                        }}
+                      >
+                        {p.length}/{PHRASE_MAX}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removePhrase(i)}
+                        className="w-6 h-6 rounded-lg flex items-center justify-center text-xs transition-colors hover:bg-red-500/15 hover:text-red-400"
+                        style={{ color: "var(--muted-2)" }}
+                        aria-label="Remove phrase"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs italic" style={{ color: "var(--muted-2)" }}>
+                No phrases yet — the hero will use the built-in defaults.
+              </p>
+            )}
+
+            {/* Add new phrase */}
+            {phrases.length < PHRASES_MAX_COUNT && (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder="Add a phrase…"
+                      value={newPhrase}
+                      maxLength={PHRASE_MAX}
+                      onChange={(e) => setNewPhrase(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addPhrase())}
+                      className={inputCls}
+                      style={fieldStyle()}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addPhrase}
+                    disabled={!newPhrase.trim() || newPhrase.trim().length > PHRASE_MAX}
+                    className="px-4 py-2 rounded-xl text-sm font-semibold bg-yellow-400 text-black transition-all hover:bg-yellow-300 hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {/* Char counter + bar */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex-1 h-1 rounded-full overflow-hidden"
+                    style={{ background: "var(--border)" }}
+                  >
+                    <div
+                      className="h-full rounded-full transition-all duration-150"
+                      style={{
+                        width: `${Math.min((newPhrase.length / PHRASE_MAX) * 100, 100)}%`,
+                        background:
+                          newPhrase.length > PHRASE_MAX
+                            ? "#f87171"
+                            : newPhrase.length > PHRASE_MAX * 0.85
+                              ? "#fbbf24"
+                              : "var(--accent)",
+                      }}
+                    />
+                  </div>
+                  <span
+                    className="text-xs font-mono shrink-0"
+                    style={{
+                      color:
+                        newPhrase.length > PHRASE_MAX
+                          ? "#f87171"
+                          : newPhrase.length > PHRASE_MAX * 0.85
+                            ? "#fbbf24"
+                            : "var(--muted-2)",
+                    }}
+                  >
+                    {newPhrase.length}/{PHRASE_MAX}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+          {/* ── / Typewriter phrases ───────────────────────────────────── */}
 
           <Field label="Bio">
             <textarea
