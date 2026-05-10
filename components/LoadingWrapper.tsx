@@ -1,10 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import LoadingScreen from "./LoadingScreen";
 
 export default function LoadingWrapper({ children }: { children: React.ReactNode }) {
-  const [done, setDone] = useState(false);
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
+  const [done, setDone] = useState(isAdmin);
+
+  // If the user navigates into /admin later, ensure it stays unblocked
+  useEffect(() => {
+    if (isAdmin) setDone(true);
+  }, [isAdmin]);
+
+  if (isAdmin) {
+    return <>{children}</>;
+  }
 
   return (
     <>
