@@ -98,11 +98,11 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
 
   useEffect(() => {
     // Draw hex after a brief moment
-    const t1 = setTimeout(() => setHexDrawn(true), 250);
+    const t1 = setTimeout(() => setHexDrawn(true), 50);
 
     // Stagger vertex dots
     HEX_VERTICES.forEach((_, i) =>
-      setTimeout(() => setActiveVerts((s) => new Set([...s, i])), 750 + i * 140),
+      setTimeout(() => setActiveVerts((s) => new Set([...s, i])), 150 + i * 40),
     );
 
     // Ellipsis
@@ -122,8 +122,8 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
       setProgress(p);
     }, 28);
 
-    // Finish on load (min 2.4 s so user can admire the animation)
-    const MIN = 2400;
+    // Finish on load (min 0.5 s)
+    const MIN = 500;
     const t0 = Date.now();
     const finish = () => {
       if (doneRef.current) return;
@@ -134,8 +134,8 @@ export default function LoadingScreen({ onDone }: { onDone: () => void }) {
         setProgress(100);
         setTimeout(() => {
           setExiting(true);
-          setTimeout(onDone, 900);
-        }, 450);
+          setTimeout(onDone, 350); // Even shorter fade-out exit
+        }, 150); // Even shorter flash before exit
       }, wait);
     };
 
